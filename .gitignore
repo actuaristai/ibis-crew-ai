@@ -144,7 +144,7 @@ dmypy.json
 # User-specific files
 .terraform*
 .Terraform*
-
+terraform.tfstate
 
 tmp*
 
