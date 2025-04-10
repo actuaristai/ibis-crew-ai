@@ -164,6 +164,6 @@ dvc-pull:
 dvc-add NEWFILE:
 	uv run dvc import-url {{NEWFILE}} data/01_raw 
 
-
-
-
+# deploy api to google cloud run
+cd-deploy:
+	gcloud run deploy genai-app-sample --source . --project 'ace-world-453411-e9' --region 'us-central1' --memory "4Gi" --allow-unauthenticated
