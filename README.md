@@ -79,8 +79,8 @@ Deploy the application directly to Cloud Run from your source code using the fol
 ```bash
 gcloud run deploy genai-app-sample \
   --source . \
-  --project YOUR_PROJECT_ID \
-  --region YOUR_GCP_REGION \
+  --project 'ace-world-453411-e9' \
+  --region 'us-central1' \
   --memory "4Gi" \
 ```
 Replace `YOUR_PROJECT_ID` with your Google Cloud project ID and `YOUR_GCP_REGION` with the desired region (e.g., `us-central1`). Adjust memory and other flags as needed for your environment.
