@@ -99,3 +99,17 @@ def dumps(obj: Any) -> str:
         JSON string representation of the object
     """
     return json.dumps(obj, default=default_serialization)
+
+
+def dumpd(obj: Any) -> Any:
+    """
+    Convert an object to a JSON-serializable dict.
+    Uses default_serialization for handling BaseModel instances.
+
+    Args:
+        obj: The object to convert
+
+    Returns:
+        Dict/list representation of the object that can be JSON serialized
+    """
+    return json.loads(dumps(obj))
