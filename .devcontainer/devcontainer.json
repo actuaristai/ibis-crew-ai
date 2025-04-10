@@ -3,6 +3,7 @@
 	"features": {
 		"ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {},
 		"ghcr.io/devcontainers-extra/features/terraform-asdf:2": {},
-		"ghcr.io/dhoeric/features/google-cloud-cli:1": {}
+		"ghcr.io/dhoeric/features/google-cloud-cli:1": {},
+		"ghcr.io/va-h/devcontainers-features/uv:1": {}
 	}
 }
