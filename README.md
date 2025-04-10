@@ -40,7 +40,7 @@ make install && make playground
 set up gcloud authentication
 `gcloud auth application-default login`
 `gcloud auth application-default set-quota-project ace-world-453411-e9`
-`gcloud config project ace-world-453411-e9`
+`gcloud config set project ace-world-453411-e9`
 
 ## Commands
 
