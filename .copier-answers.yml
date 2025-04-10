@@ -1,0 +1,8 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 1.4.1
+_src_path: https://github.com/actuaristai/template.git
+email: human@actuarist.ai
+full_name: Actuarist AI
+project_name: ibis-crew-ai
+project_short_description: Data manipulation using ibis with AI
+remote_repository: https://github.com/actuaristai/ibis-crew-ai.git

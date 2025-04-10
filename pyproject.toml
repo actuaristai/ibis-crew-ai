@@ -1,10 +1,13 @@
+[build-system]
+requires = [ "hatchling",]
+build-backend = "hatchling.build"
+
 [project]
 name = "ibis-crew-ai"
 version = "0.1.0"
-description = ""
-authors = [
-    {name = "Your Name", email = "your@email.com"},
-]
+description = "Data manipulation using ibis with AI"
+readme = "README.md"
+requires-python = ">=3.13"
 dependencies = [
     "langchain-google-vertexai~=2.0.7",
     "langchain~=0.3.14",
@@ -50,56 +53,23 @@ lint = [
 ]
 
 [tool.ruff]
-line-length = 88
-target-version = "py310"
+src = [ "src/ibis-crew-ai", "tests", "conf",]
+line-length = 120
+exclude = [ ".git", ".ruff_cache", ".venv", "__pypackages__", "__init__.py",]
+
+[tool.autopep8]
+max_line_length = 120
 
 [tool.ruff.lint]
-select = [
-    "E",   # pycodestyle
-    "F",   # pyflakes
-    "W",   # pycodestyle warnings
-    "I",   # isort
-    "C",  # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP", # pyupgrade
-    "RUF", # ruff specific rules
-]
-ignore = ["E501", "C901"] # ignore line too long, too complex
+select = [ "ALL",]
+ignore = [ ]
 
-[tool.ruff.lint.isort]
-known-first-party = ["app", "frontend"]
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
-[tool.mypy]
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-no_implicit_optional = true
-check_untyped_defs = true
-disallow_subclassing_any = true
-warn_incomplete_stub = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_unreachable = true
-follow_imports = "silent"
-ignore_missing_imports = true
-explicit_package_bases = true
-disable_error_code = ["misc", "no-untyped-call", "no-any-return"]
-
-exclude = [".venv"]
-
-[tool.codespell]
-ignore-words-list = "rouge"
-
-skip = "./locust_env/*,uv.lock,.venv,**/*.ipynb"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-
-[tool.pytest.ini_options]
-pythonpath = "."
-asyncio_default_fixture_loop_scope = "function"
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
 
 [tool.hatch.build.targets.wheel]
-packages = ["app","frontend"]
+packages = ["src/ibis-crew-ai", "conf"]
+

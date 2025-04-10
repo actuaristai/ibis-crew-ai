@@ -1,0 +1,24 @@
+---
+title: "ibis-crew-ai"
+format: 
+    html:
+        number-sections: true
+        html-table-processing: none
+jupyter: ibis-crew-ai # uv run python -m ipykernel install --user --name ibis-crew-ai
+echo: false
+execute:
+  freeze: auto  # re-render only when source changes
+---
+
+# Executive Summary
+
+This document summarises the ibis-crew-ai ...
+
+Data manipulation using ibis with AI
+
+## Key info
+
+-   Repository name: ibis-crew-ai
+-   Author: Actuarist AI
+-   Repository location: https://github.com/actuaristai/ibis-crew-ai.git
+
