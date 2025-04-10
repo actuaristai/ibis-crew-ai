@@ -7,7 +7,6 @@ name = "ibis-crew-ai"
 version = "0.1.0"
 description = "Data manipulation using ibis with AI"
 readme = "README.md"
-requires-python = ">=3.13"
 dependencies = [
     "langchain-google-vertexai~=2.0.7",
     "langchain~=0.3.14",
