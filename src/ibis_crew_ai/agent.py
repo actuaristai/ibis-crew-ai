@@ -1,5 +1,6 @@
 """Main agent code."""
 
+from conf.config import conf
 from langchain_core.messages import BaseMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
@@ -9,9 +10,6 @@ from langgraph.prebuilt import ToolNode
 
 from ibis_crew_ai.crew.crew import DevCrew
 
-LOCATION = 'us-central1'
-LLM = 'gemini-2.0-flash-001'
-
 
 @tool
 def coding_tool(code_instructions: str) -> str:
@@ -20,25 +18,24 @@ def coding_tool(code_instructions: str) -> str:
     return DevCrew().crew().kickoff(inputs=inputs)
 
 
-tools = [coding_tool]
+def initialize_llm() -> ChatVertexAI:
+    """Initializes and returns the language model."""
+    return ChatVertexAI(
+        model=conf['LLM'],
+        location=conf['LOCATION'],
+        temperature=0,
+        max_tokens=4096,
+        streaming=True
+    )
 
-# 2. Set up the language model
-llm = ChatVertexAI(model=LLM,
-                   location=LOCATION,
-                   temperature=0,
-                   max_tokens=4096,
-                   streaming=True) \
-    .bind_tools(tools)
 
-
-# 3. Define workflow components
 def should_continue(state: MessagesState) -> str:
     """Determines whether to use the crew or end the conversation."""
     last_message = state['messages'][-1]
     return 'dev_crew' if last_message.tool_calls else END
 
 
-def call_model(state: MessagesState, config: RunnableConfig) -> dict[str, BaseMessage]:
+def call_model(state: MessagesState, config: RunnableConfig, llm: ChatVertexAI) -> dict[str, BaseMessage]:
     """Calls the language model and returns the response."""
     system_message = ("You are an expert Lead Software Engineer Manager.\n"
                       "Your role is to speak to a user and understand what kind of code they need to "
@@ -58,15 +55,26 @@ def call_model(state: MessagesState, config: RunnableConfig) -> dict[str, BaseMe
     return {'messages': response}
 
 
-# 4. Create the workflow graph
-workflow = StateGraph(MessagesState)
-workflow.add_node('agent', call_model)
-workflow.add_node('dev_crew', ToolNode(tools))
-workflow.set_entry_point('agent')
+def agent_workflow() -> StateGraph:
+    """Creates the workflow for the agent."""
+    tools = [coding_tool]
 
-# 5. Define graph edges
-workflow.add_conditional_edges('agent', should_continue)
-workflow.add_edge('dev_crew', 'agent')
+    # Initialize the language model
+    llm = initialize_llm().bind_tools(tools)
 
-# 6. Compile the workflow
-agent = workflow.compile()
+    # Create the workflow graph
+    workflow = StateGraph(MessagesState)
+    workflow.add_node('agent', lambda state, config: call_model(state, config, llm))
+    workflow.add_node('dev_crew', ToolNode(tools))
+    workflow.set_entry_point('agent')
+
+    # Define graph edges
+    workflow.add_conditional_edges('agent', should_continue)
+    workflow.add_edge('dev_crew', 'agent')
+
+    # Compile the workflow
+    return workflow.compile()
+
+
+if __name__ == '__main__':
+    agent = agent_workflow()

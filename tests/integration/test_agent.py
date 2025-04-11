@@ -1,6 +1,6 @@
 """Integration test for the agent stream functionality."""  # noqa: INP001
 
-from ibis_crew_ai.agent import agent
+from ibis_crew_ai.agent import agent_workflow
 
 
 def test_agent_stream() -> None:
@@ -14,7 +14,7 @@ def test_agent_stream() -> None:
                                 'content': 'Hi there!'},
                                {'type': 'human',
                                 'content': 'Write a fibonacci function in python'}]}
-
+    agent = agent_workflow()
     events = [message for message, _ in agent.stream(input_dict, stream_mode='messages')]
     # Verify we get a reasonable number of messages
     assert len(events) > 0, 'Expected at least one message'

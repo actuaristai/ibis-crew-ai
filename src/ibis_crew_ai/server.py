@@ -10,7 +10,7 @@ from langchain_core.runnables import RunnableConfig
 from loguru import logger  # Import loguru logger
 from traceloop.sdk import Instruments, Traceloop
 
-from ibis_crew_ai.agent import agent
+from ibis_crew_ai.agent import agent_workflow
 from ibis_crew_ai.utils.tracing import CloudTraceLoggingSpanExporter
 from ibis_crew_ai.utils.typing import Feedback, InputChat, Request, dumps, ensure_valid_config
 
@@ -76,7 +76,7 @@ def stream_messages(input_msg: InputChat,
     config = ensure_valid_config(config=config)
     set_tracing_properties(config)
     input_dict = input_msg.model_dump()
-
+    agent = agent_workflow()
     for data in agent.stream(input_dict, config=config, stream_mode='messages'):
         yield dumps(data) + '\n'
 
