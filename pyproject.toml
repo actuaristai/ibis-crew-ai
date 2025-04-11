@@ -20,7 +20,8 @@ dependencies = [
     "google-cloud-logging~=3.11.4",
     "google-cloud-aiplatform[evaluation]~=1.87.0",
     "fastapi~=0.115.8",
-    "uvicorn~=0.34.0"
+    "uvicorn~=0.34.0",
+    "loguru>=0.7.3",
 ]
 
 requires-python = ">=3.10,<3.14"
@@ -52,7 +53,7 @@ lint = [
 ]
 
 [tool.ruff]
-src = [ "src/ibis-crew-ai", "tests", "conf",]
+src = [ "src/ibis_crew_ai", "tests", "conf",]
 line-length = 120
 exclude = [ ".git", ".ruff_cache", ".venv", "__pypackages__", "__init__.py",]
 
@@ -70,5 +71,5 @@ convention = "google"
 inline-quotes = "single"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ibis-crew-ai", "conf"]
+packages = ["src/ibis_crew_ai", "conf"]
 

@@ -55,7 +55,7 @@ test:
 # set up playground environment
 run:
 	#!/usr/bin/env bash
-	uv run uvicorn ibis_crew_ai.server:app --host 0.0.0.0 --port 8000 &
+	uv run uvicorn ibis_crew_ai.server:app --host localhost --port 8000 &
 	uv run streamlit run frontend/streamlit_app.py --browser.serverAddress=localhost --server.enableCORS=false --server.enableXsrfProtection=false
 
 # set up api 
