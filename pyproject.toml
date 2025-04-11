@@ -65,6 +65,9 @@ max_line_length = 120
 select = [ "ALL",]
 ignore = [ ]
 
+[tool.ruff.lint.extend-per-file-ignores]
+"tests/**/*.py" = ["S101"] # assert used in tests
+
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
