@@ -1,24 +1,11 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+"""Chat utilities for saving and sanitizing chat messages."""
 
-import os
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-SAVED_CHAT_PATH = str(os.getcwd()) + '/.saved_chats'
+SAVED_CHAT_PATH = str(Path.cwd()) + '/.saved_chats'
 
 
 def clean_text(text: str) -> str:
@@ -27,13 +14,11 @@ def clean_text(text: str) -> str:
         return text
 
     text = text.removeprefix('\n')
-    text = text.removesuffix('\n')
-    return text
+    return text.removesuffix('\n')
 
 
-def sanitize_messages(
-    messages: list[dict[str, str | list[dict[str, str]]]],
-) -> list[dict[str, str | list[dict[str, str]]]]:
+def sanitize_messages(messages: list[dict[str, str | list[dict[str, str]]]],
+                      ) -> list[dict[str, str | list[dict[str, str]]]]:
     """Preprocess and fix the content of messages."""
     for message in messages:
         if isinstance(message['content'], list):
@@ -45,7 +30,7 @@ def sanitize_messages(
     return messages
 
 
-def save_chat(st: Any) -> None:
+def save_chat(st: Any) -> None:  # noqa: ANN401
     """Save the current chat session to a YAML file."""
     Path(SAVED_CHAT_PATH).mkdir(parents=True, exist_ok=True)
     session_id = st.session_state['session_id']
@@ -54,7 +39,7 @@ def save_chat(st: Any) -> None:
     if len(messages) > 0:
         session['messages'] = sanitize_messages(session['messages'])
         filename = f'{session_id}.yaml'
-        with open(Path(SAVED_CHAT_PATH) / filename, 'w') as file:
+        with open(Path(SAVED_CHAT_PATH) / filename, 'w') as file:  # noqa: PTH123
             yaml.dump(
                 [session],
                 file,
