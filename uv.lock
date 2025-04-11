@@ -934,6 +934,15 @@ wheels = [
 ]
 
 [[package]]
+name = "dynaconf"
+version = "3.2.10"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/98/a8/bd76f872481c783a7e29cf0d4eccf773b1a2418b971f389245964223dcd6/dynaconf-3.2.10.tar.gz", hash = "sha256:8dbeef31a2343c8342c9b679772c3d005b4801c587cf2f525f98f57ec2f607f1", size = 234228 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/06/02/3846e28288fa0ee0d45e3e01581629fbfcc1ca53121ad26e0f278daa8241/dynaconf-3.2.10-py2.py3-none-any.whl", hash = "sha256:7f70a4b8a8861efb88d8267aeb6f246c791dc34ecbb8299c26a19abd59113df6", size = 236203 },
+]
+
+[[package]]
 name = "entrypoints"
 version = "0.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1709,6 +1718,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "crewai" },
+    { name = "dynaconf" },
     { name = "fastapi" },
     { name = "google-cloud-aiplatform", extra = ["evaluation"] },
     { name = "google-cloud-logging" },
@@ -1753,6 +1763,7 @@ dev = [
 requires-dist = [
     { name = "codespell", marker = "extra == 'lint'", specifier = "~=2.2.0" },
     { name = "crewai", specifier = "~=0.102.0" },
+    { name = "dynaconf", specifier = ">=3.2.10" },
     { name = "extra-streamlit-components", marker = "extra == 'streamlit'", specifier = "~=0.1.71" },
     { name = "fastapi", specifier = "~=0.115.8" },
     { name = "google-cloud-aiplatform", extras = ["evaluation"], specifier = "~=1.87.0" },

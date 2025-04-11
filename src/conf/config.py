@@ -15,7 +15,7 @@ from dynaconf import Dynaconf
 
 conf = Dynaconf(envvar_prefix=False,
                 load_dotenv=True,
-                settings_files=['conf/parameters.toml',
+                settings_files=['src/conf/parameters.toml',
                                 '.secrets.toml'])
 #  can also use validators=[] to ensure some parameter meets a condition
 
