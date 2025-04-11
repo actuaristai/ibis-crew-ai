@@ -16,9 +16,8 @@ import os
 from datetime import datetime
 
 import yaml
-from langchain_core.chat_history import BaseChatMessageHistory
-
 from frontend.utils.title_summary import chain_title
+from langchain_core.chat_history import BaseChatMessageHistory
 
 
 class LocalChatMessageHistory(BaseChatMessageHistory):
@@ -27,27 +26,27 @@ class LocalChatMessageHistory(BaseChatMessageHistory):
     def __init__(
         self,
         user_id: str,
-        session_id: str = "default",
-        base_dir: str = ".streamlit_chats",
+        session_id: str = 'default',
+        base_dir: str = '.streamlit_chats',
     ) -> None:
         self.user_id = user_id
         self.session_id = session_id
         self.base_dir = base_dir
         self.user_dir = os.path.join(self.base_dir, self.user_id)
-        self.session_file = os.path.join(self.user_dir, f"{session_id}.yaml")
+        self.session_file = os.path.join(self.user_dir, f'{session_id}.yaml')
 
         os.makedirs(self.user_dir, exist_ok=True)
 
     def get_session(self, session_id: str) -> None:
         """Updates the session ID and file path for the current session."""
         self.session_id = session_id
-        self.session_file = os.path.join(self.user_dir, f"{session_id}.yaml")
+        self.session_file = os.path.join(self.user_dir, f'{session_id}.yaml')
 
     def get_all_conversations(self) -> dict[str, dict]:
         """Retrieves all conversations for the current user."""
         conversations = {}
         for filename in os.listdir(self.user_dir):
-            if filename.endswith(".yaml"):
+            if filename.endswith('.yaml'):
                 file_path = os.path.join(self.user_dir, filename)
                 with open(file_path) as f:
                     conversation = yaml.safe_load(f)
@@ -58,31 +57,30 @@ class LocalChatMessageHistory(BaseChatMessageHistory):
                         structure.
                           - messages:
                               - content: [message text]
-                              - type: (human or ai)"""
+                              - type: (human or ai)""",
                         )
                     conversation = conversation[0]
-                    if "title" not in conversation:
-                        conversation["title"] = filename
+                    if 'title' not in conversation:
+                        conversation['title'] = filename
                 conversations[filename[:-5]] = conversation
         return dict(
-            sorted(conversations.items(), key=lambda x: x[1].get("update_time", ""))
+            sorted(conversations.items(), key=lambda x: x[1].get('update_time', '')),
         )
 
     def upsert_session(self, session: dict) -> None:
         """Updates or inserts a session into the local storage."""
-        session["update_time"] = datetime.now().isoformat()
-        with open(self.session_file, "w") as f:
+        session['update_time'] = datetime.now().isoformat()
+        with open(self.session_file, 'w') as f:
             yaml.dump(
                 [session],
                 f,
                 allow_unicode=True,
                 default_flow_style=False,
-                encoding="utf-8",
+                encoding='utf-8',
             )
 
     def set_title(self, session: dict) -> None:
-        """
-        Set the title for the given session.
+        """Set the title for the given session.
 
         This method generates a title for the session based on its messages.
         If the session has messages, it appends a special message to prompt
@@ -96,18 +94,18 @@ class LocalChatMessageHistory(BaseChatMessageHistory):
         Returns:
             None
         """
-        if session["messages"]:
-            messages = session["messages"] + [
+        if session['messages']:
+            messages = session['messages'] + [
                 {
-                    "type": "human",
-                    "content": "End of conversation - Create one single title",
-                }
+                    'type': 'human',
+                    'content': 'End of conversation - Create one single title',
+                },
             ]
             # Remove the tool calls from conversation
             messages = [
                 msg
                 for msg in messages
-                if msg["type"] in ("ai", "human") and isinstance(msg["content"], str)
+                if msg['type'] in ('ai', 'human') and isinstance(msg['content'], str)
             ]
 
             response = chain_title.invoke(messages)
@@ -116,7 +114,7 @@ class LocalChatMessageHistory(BaseChatMessageHistory):
                 if isinstance(response.content, str)
                 else str(response.content)
             )
-            session["title"] = title
+            session['title'] = title
             self.upsert_session(session)
 
     def clear(self) -> None:

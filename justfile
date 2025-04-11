@@ -56,7 +56,7 @@ test:
 run:
 	#!/usr/bin/env bash
 	uv run uvicorn ibis_crew_ai.server:app --host localhost --port 8000 &
-	uv run streamlit run frontend/streamlit_app.py --browser.serverAddress=localhost --server.enableCORS=false --server.enableXsrfProtection=false
+	uv run streamlit run src/frontend/streamlit_app.py --browser.serverAddress=localhost --server.enableCORS=false --server.enableXsrfProtection=false
 
 # set up api 
 backend: 

@@ -26,11 +26,10 @@ import google.oauth2.id_token
 import requests
 import streamlit as st
 import vertexai
+from frontend.utils.multimodal_utils import format_content
 from google.auth.exceptions import DefaultCredentialsError
 from langchain_core.messages import AIMessage, ToolMessage
 from vertexai import agent_engines
-
-from frontend.utils.multimodal_utils import format_content
 
 st.cache_resource.clear()
 
@@ -39,7 +38,7 @@ st.cache_resource.clear()
 def get_remote_agent(remote_agent_engine_id: str) -> Any:
     """Get cached remote agent instance."""
     # Extract location and engine ID from the full resource ID.
-    parts = remote_agent_engine_id.split("/")
+    parts = remote_agent_engine_id.split('/')
     project_id = parts[1]
     location = parts[3]
     vertexai.init(project=project_id, location=location)
@@ -49,7 +48,7 @@ def get_remote_agent(remote_agent_engine_id: str) -> Any:
 @st.cache_resource
 def get_remote_url_config(url: str, authenticate_request: bool) -> dict[str, Any]:
     """Get cached remote URL agent configuration."""
-    stream_url = urljoin(url, "stream_messages")
+    stream_url = urljoin(url, 'stream_messages')
     creds, _ = google.auth.default()
     id_token = None
     if authenticate_request:
@@ -60,17 +59,17 @@ def get_remote_url_config(url: str, authenticate_request: bool) -> dict[str, Any
             creds.refresh(auth_req)
             id_token = creds.id_token
     return {
-        "url": stream_url,
-        "authenticate_request": authenticate_request,
-        "creds": creds,
-        "id_token": id_token,
+        'url': stream_url,
+        'authenticate_request': authenticate_request,
+        'creds': creds,
+        'id_token': id_token,
     }
 
 
 @st.cache_resource()
 def get_local_agent(agent_callable_path: str) -> Any:
     """Get cached local agent instance."""
-    module_path, class_name = agent_callable_path.rsplit(".", 1)
+    module_path, class_name = agent_callable_path.rsplit('.', 1)
     module = importlib.import_module(module_path)
     agent = getattr(module, class_name)()
     agent.set_up()
@@ -97,10 +96,10 @@ class Client:
         """
         if url:
             remote_config = get_remote_url_config(url, authenticate_request)
-            self.url = remote_config["url"]
-            self.authenticate_request = remote_config["authenticate_request"]
-            self.creds = remote_config["creds"]
-            self.id_token = remote_config["id_token"]
+            self.url = remote_config['url']
+            self.authenticate_request = remote_config['authenticate_request']
+            self.creds = remote_config['creds']
+            self.id_token = remote_config['id_token']
             self.agent = None
         elif remote_agent_engine_id:
             self.agent = get_remote_agent(remote_agent_engine_id)
@@ -108,63 +107,63 @@ class Client:
         else:
             self.url = None
             if agent_callable_path is None:
-                raise ValueError("agent_callable_path cannot be None")
+                raise ValueError('agent_callable_path cannot be None')
             self.agent = get_local_agent(agent_callable_path)
 
     def log_feedback(self, feedback_dict: dict[str, Any], run_id: str) -> None:
         """Log user feedback for a specific run."""
-        score = feedback_dict["score"]
-        if score == "😞":
+        score = feedback_dict['score']
+        if score == '😞':
             score = 0.0
-        elif score == "🙁":
+        elif score == '🙁':
             score = 0.25
-        elif score == "😐":
+        elif score == '😐':
             score = 0.5
-        elif score == "🙂":
+        elif score == '🙂':
             score = 0.75
-        elif score == "😀":
+        elif score == '😀':
             score = 1.0
-        feedback_dict["score"] = score
-        feedback_dict["run_id"] = run_id
-        feedback_dict["log_type"] = "feedback"
-        feedback_dict.pop("type")
-        url = urljoin(self.url, "feedback")
+        feedback_dict['score'] = score
+        feedback_dict['run_id'] = run_id
+        feedback_dict['log_type'] = 'feedback'
+        feedback_dict.pop('type')
+        url = urljoin(self.url, 'feedback')
         headers = {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
         }
         if self.url:
-            url = urljoin(self.url, "feedback")
+            url = urljoin(self.url, 'feedback')
             headers = {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             }
             if self.authenticate_request:
-                headers["Authorization"] = f"Bearer {self.id_token}"
+                headers['Authorization'] = f'Bearer {self.id_token}'
             requests.post(
-                url, data=json.dumps(feedback_dict), headers=headers, timeout=10
+                url, data=json.dumps(feedback_dict), headers=headers, timeout=10,
             )
         elif self.agent is not None:
             self.agent.register_feedback(feedback=feedback_dict)
         else:
-            raise ValueError("No agent or URL configured for feedback logging")
+            raise ValueError('No agent or URL configured for feedback logging')
 
     def stream_messages(
-        self, data: dict[str, Any]
+        self, data: dict[str, Any],
     ) -> Generator[dict[str, Any], None, None]:
         """Stream events from the server, yielding parsed event data."""
         if self.url:
             headers = {
-                "Content-Type": "application/json",
-                "Accept": "text/event-stream",
+                'Content-Type': 'application/json',
+                'Accept': 'text/event-stream',
             }
             if self.authenticate_request:
-                headers["Authorization"] = f"Bearer {self.id_token}"
+                headers['Authorization'] = f'Bearer {self.id_token}'
             with requests.post(
-                self.url, json=data, headers=headers, stream=True, timeout=60
+                self.url, json=data, headers=headers, stream=True, timeout=60,
             ) as response:
                 for line in response.iter_lines():
                     if line:
                         try:
-                            event = json.loads(line.decode("utf-8"))
+                            event = json.loads(line.decode('utf-8'))
                             yield event
                         except json.JSONDecodeError:
                             print(f"Failed to parse event: {line.decode('utf-8')}")
@@ -175,10 +174,10 @@ class Client:
 class StreamHandler:
     """Handles streaming updates to a Streamlit interface."""
 
-    def __init__(self, st: Any, initial_text: str = "") -> None:
+    def __init__(self, st: Any, initial_text: str = '') -> None:
         """Initialize the StreamHandler with Streamlit context and initial text."""
         self.st = st
-        self.tool_expander = st.expander("Tool Calls:", expanded=False)
+        self.tool_expander = st.expander('Tool Calls:', expanded=False)
         self.container = st.empty()
         self.text = initial_text
         self.tools_logs = initial_text
@@ -202,7 +201,7 @@ class EventProcessor:
         self.st = st
         self.client = client
         self.stream_handler = stream_handler
-        self.final_content = ""
+        self.final_content = ''
         self.tool_calls: list[dict[str, Any]] = []
         self.current_run_id: str | None = None
         self.additional_kwargs: dict[str, Any] = {}
@@ -210,51 +209,51 @@ class EventProcessor:
     def process_events(self) -> None:
         """Process events from the stream, handling each event type appropriately."""
         messages = self.st.session_state.user_chats[
-            self.st.session_state["session_id"]
-        ]["messages"]
+            self.st.session_state['session_id']
+        ]['messages']
         self.current_run_id = str(uuid.uuid4())
         # Set run_id in session state at start of processing
-        self.st.session_state["run_id"] = self.current_run_id
+        self.st.session_state['run_id'] = self.current_run_id
         stream = self.client.stream_messages(
             data={
-                "input": {"messages": messages},
-                "config": {
-                    "run_id": self.current_run_id,
-                    "metadata": {
-                        "user_id": self.st.session_state["user_id"],
-                        "session_id": self.st.session_state["session_id"],
+                'input': {'messages': messages},
+                'config': {
+                    'run_id': self.current_run_id,
+                    'metadata': {
+                        'user_id': self.st.session_state['user_id'],
+                        'session_id': self.st.session_state['session_id'],
                     },
                 },
-            }
+            },
         )
         # Each event is a tuple message, metadata. https://langchain-ai.github.io/langgraph/how-tos/streaming/#messages
         for message, _ in stream:
             if isinstance(message, dict):
-                if message.get("type") == "constructor":
-                    message = message["kwargs"]
+                if message.get('type') == 'constructor':
+                    message = message['kwargs']
 
                     # Handle tool calls
-                    if message.get("tool_calls"):
-                        tool_calls = message["tool_calls"]
-                        ai_message = AIMessage(content="", tool_calls=tool_calls)
+                    if message.get('tool_calls'):
+                        tool_calls = message['tool_calls']
+                        ai_message = AIMessage(content='', tool_calls=tool_calls)
                         self.tool_calls.append(ai_message.model_dump())
                         for tool_call in tool_calls:
                             msg = f"\n\nCalling tool: `{tool_call['name']}` with args: `{tool_call['args']}`"
                             self.stream_handler.new_status(msg)
 
                     # Handle tool responses
-                    elif message.get("tool_call_id"):
-                        content = message["content"]
-                        tool_call_id = message["tool_call_id"]
+                    elif message.get('tool_call_id'):
+                        content = message['content']
+                        tool_call_id = message['tool_call_id']
                         tool_message = ToolMessage(
-                            content=content, type="tool", tool_call_id=tool_call_id
+                            content=content, type='tool', tool_call_id=tool_call_id,
                         ).model_dump()
                         self.tool_calls.append(tool_message)
-                        msg = f"\n\nTool response: `{content}`"
+                        msg = f'\n\nTool response: `{content}`'
                         self.stream_handler.new_status(msg)
 
                     # Handle AI responses
-                    elif content := message.get("content"):
+                    elif content := message.get('content'):
                         self.final_content += content
                         self.stream_handler.new_token(content)
 
@@ -265,11 +264,11 @@ class EventProcessor:
                 id=self.current_run_id,
                 additional_kwargs=self.additional_kwargs,
             ).model_dump()
-            session = self.st.session_state["session_id"]
-            self.st.session_state.user_chats[session]["messages"] = (
-                self.st.session_state.user_chats[session]["messages"] + self.tool_calls
+            session = self.st.session_state['session_id']
+            self.st.session_state.user_chats[session]['messages'] = (
+                self.st.session_state.user_chats[session]['messages'] + self.tool_calls
             )
-            self.st.session_state.user_chats[session]["messages"].append(final_message)
+            self.st.session_state.user_chats[session]['messages'].append(final_message)
             self.st.session_state.run_id = self.current_run_id
 
 

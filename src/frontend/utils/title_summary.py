@@ -24,7 +24,7 @@ from langchain_google_vertexai import ChatVertexAI
 title_template = ChatPromptTemplate.from_messages(
     [
         (
-            "system",
+            'system',
             """Given a list of messages between a human and AI, come up with a short and relevant title for the conversation. Use up to 10 words. The title needs to be concise.
 Examples:
 **Input:**
@@ -68,27 +68,27 @@ If there's not enough context in the conversation to create a meaningful title, 
 
 """,
         ),
-        MessagesPlaceholder(variable_name="messages"),
-    ]
+        MessagesPlaceholder(variable_name='messages'),
+    ],
 )
 try:
     # Initialize Vertex AI with default project credentials
     _, project_id = google.auth.default()
 
     llm = ChatVertexAI(
-        model_name="gemini-2.0-flash-001",
+        model_name='gemini-2.0-flash-001',
         temperature=0,
         project=project_id,
-        location=os.getenv("LOCATION", "us-central1"),
+        location=os.getenv('LOCATION', 'us-central1'),
     )
     chain_title = title_template | llm
 
 except Exception:
     # Fallback to a simple title generator when Vertex AI is unavailable
-    print("WARNING: Failed to initialize Vertex AI. Using dummy LLM instead.")
+    print('WARNING: Failed to initialize Vertex AI. Using dummy LLM instead.')
 
     class DummyChain:
         def invoke(*args: Any, **kwargs: Any) -> AIMessage:
-            return AIMessage(content="conversation")
+            return AIMessage(content='conversation')
 
     chain_title = DummyChain()
