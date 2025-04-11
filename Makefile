@@ -6,7 +6,7 @@ test:
 	uv run pytest tests/unit && uv run pytest tests/integration
 
 playground:
-	uv run uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload &
+	uv run uvicorn ibis_crew_ai.server:app --host 0.0.0.0 --port 8000 --reload &
 	uv run streamlit run frontend/streamlit_app.py --browser.serverAddress=localhost --server.enableCORS=false --server.enableXsrfProtection=false
 
 backend:

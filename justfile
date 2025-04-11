@@ -52,10 +52,16 @@ test:
 	uv run --only-group test pytest --cov-report term-missing --cov={{PROJECT_NAME}} -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
 	uv run --only-group test pytest --cov-report term-missing --cov=tests -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
 
-# reproduce dvc pipeline
+# set up playground environment
 run:
-	uv run dvc repro
-	# uv run dvc push
+	#!/usr/bin/env bash
+	uv run uvicorn ibis_crew_ai.server:app --host 0.0.0.0 --port 8000 &
+	uv run streamlit run frontend/streamlit_app.py --browser.serverAddress=localhost --server.enableCORS=false --server.enableXsrfProtection=false
+
+# set up api 
+backend: 
+	uv run uvicorn ibis_crew_ai.server:app --host 0.0.0.0 --port 8000 --reload
+
 
 # update template using copier. optional: use other copier options like vcs-ref=branch 
 update-template *COPIER_OPTIONS:
@@ -88,7 +94,7 @@ init-git-push:
 
 # set up environment using uv and set up ipykernel in project name
 init-env:
-	uv sync
+	uv sync --dev --extra streamlit --extra jupyter --frozen
 	uv run python -m ipykernel install --user --name {{PROJECT_NAME}}
 
 # pre-commit
@@ -156,14 +162,11 @@ clean:
 	Remove-Item -Path ".quarto" -Recurse -Confirm -Erroraction 'silentlycontinue'
 	Get-ChildItem -Path . -Filter "__pycache__" -Recurse -Directory | Remove-Item -Recurse -Force
 
-# dvc pull
-dvc-pull:
-	uv run dvc-pull
-
-# dvc add using import-url so that we have metadata on original source going to data/01_raw folder. Usage: just dvc-add NEWFILE='remote.source.link'
-dvc-add NEWFILE:
-	uv run dvc import-url {{NEWFILE}} data/01_raw 
-
 # deploy api to google cloud run
 cd-deploy:
 	gcloud run deploy genai-app-sample --source . --project 'ace-world-453411-e9' --region 'us-central1' --memory "4Gi" --allow-unauthenticated
+
+gcloud-auth:
+	gcloud auth application-default login
+	gcloud auth application-default set-quota-project ace-world-453411-e9
+	gcloud config set project ace-world-453411-e9
