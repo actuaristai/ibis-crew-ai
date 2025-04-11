@@ -44,8 +44,10 @@ docs: _docs-build
 
 # Lint using ruff
 lint: 
+	# uv run --extra lint codespell
 	uv run --extra lint ruff check src/{{PROJECT_NAME}} --fix
 	uv run --extra lint ruff check tests --fix
+	uv run --extra lint ruff check src/frontend --fix
 
 # test using pytest
 test:

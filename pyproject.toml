@@ -76,5 +76,5 @@ convention = "google"
 inline-quotes = "single"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ibis_crew_ai", "src/conf"]
+packages = ["src/ibis_crew_ai", "src/conf", "src/frontend"]
 
