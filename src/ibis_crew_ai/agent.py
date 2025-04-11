@@ -23,9 +23,12 @@ def coding_tool(code_instructions: str) -> str:
 tools = [coding_tool]
 
 # 2. Set up the language model
-llm = ChatVertexAI(
-    model=LLM, location=LOCATION, temperature=0, max_tokens=4096, streaming=True,
-).bind_tools(tools)
+llm = ChatVertexAI(model=LLM,
+                   location=LOCATION,
+                   temperature=0,
+                   max_tokens=4096,
+                   streaming=True) \
+    .bind_tools(tools)
 
 
 # 3. Define workflow components
@@ -37,19 +40,17 @@ def should_continue(state: MessagesState) -> str:
 
 def call_model(state: MessagesState, config: RunnableConfig) -> dict[str, BaseMessage]:
     """Calls the language model and returns the response."""
-    system_message = (
-        "You are an expert Lead Software Engineer Manager.\n"
-        "Your role is to speak to a user and understand what kind of code they need to "
-        "build.\n"
-        "Part of your task is therefore to gather requirements and clarifying ambiguity "
-        "by asking followup questions. Don't ask all the questions together as the user "
-        "has a low attention span, rather ask a question at the time.\n"
-        "Once the problem to solve is clear, you will call your tool for writing the "
-        "solution.\n"
-        "Remember, you are an expert in understanding requirements but you cannot code, "
-        "use your coding tool to generate a solution. Keep the test cases if any, they "
-        "are useful for the user."
-    )
+    system_message = ("You are an expert Lead Software Engineer Manager.\n"
+                      "Your role is to speak to a user and understand what kind of code they need to "
+                      "build.\n"
+                      "Part of your task is therefore to gather requirements and clarifying ambiguity "
+                      "by asking followup questions. Don't ask all the questions together as the user "
+                      "has a low attention span, rather ask a question at the time.\n"
+                      "Once the problem to solve is clear, you will call your tool for writing the "
+                      "solution.\n"
+                      "Remember, you are an expert in understanding requirements but you cannot code, "
+                      "use your coding tool to generate a solution. Keep the test cases if any, they "
+                      "are useful for the user.")
 
     messages_with_system = [{'type': 'system', 'content': system_message}] + state['messages']
     # Forward the RunnableConfig object to ensure the agent is capable of streaming the response.

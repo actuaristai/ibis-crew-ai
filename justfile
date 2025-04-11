@@ -51,8 +51,8 @@ lint:
 
 # test using pytest
 test:
-	uv run --only-group test pytest --cov-report term-missing --cov={{PROJECT_NAME}} -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
-	uv run --only-group test pytest --cov-report term-missing --cov=tests -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
+	uv run --dev pytest --cov-report term-missing --cov={{PROJECT_NAME}} -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
+	uv run --dev pytest --cov-report term-missing --cov=tests -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
 
 # set up playground environment
 run:

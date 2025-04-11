@@ -73,7 +73,7 @@ async def test_stream_chat_events() -> None:
     mock_agent_module.agent.stream.return_value = mock_events
 
     # Patch the module import
-    with patch.dict(sys.modules, {'app.agent': mock_agent_module}):
+    with patch.dict(sys.modules, {'ibis_crew_ai.agent': mock_agent_module}):
         # Import server after the mock is in place
         from ibis_crew_ai.server import app
 
