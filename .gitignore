@@ -145,7 +145,7 @@ dmypy.json
 .terraform*
 .Terraform*
 terraform.tfstate
-
+terraform.tfstate.backup
 tmp*
 
 # Node

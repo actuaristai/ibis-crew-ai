@@ -172,3 +172,9 @@ gcloud-auth:
 	gcloud auth application-default login
 	gcloud auth application-default set-quota-project ace-world-453411-e9
 	gcloud config set project ace-world-453411-e9
+
+# set up dev environment using terraform
+setup-dev-env:
+	#!/usr/bin/env bash
+	export PROJECT_ID=$(gcloud config get-value project)
+	(cd deployment/terraform/dev && terraform init && terraform apply --var-file vars/env.tfvars --var dev_project_id=$PROJECT_ID --auto-approve)
