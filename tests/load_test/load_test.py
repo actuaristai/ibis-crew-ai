@@ -27,31 +27,31 @@ class ChatStreamUser(HttpUser):
     @task
     def chat_stream(self) -> None:
         """Simulates a chat stream interaction."""
-        headers = {"Content-Type": "application/json"}
-        if os.environ.get("_ID_TOKEN"):
-            headers["Authorization"] = f"Bearer {os.environ['_ID_TOKEN']}"
+        headers = {'Content-Type': 'application/json'}
+        if os.environ.get('_ID_TOKEN'):
+            headers['Authorization'] = f"Bearer {os.environ['_ID_TOKEN']}"
 
         data = {
-            "input": {
-                "messages": [
-                    {"type": "human", "content": "Hello, AI!"},
-                    {"type": "ai", "content": "Hello!"},
-                    {"type": "human", "content": "Who are you?"},
-                ]
+            'input': {
+                'messages': [
+                    {'type': 'human', 'content': 'Hello, AI!'},
+                    {'type': 'ai', 'content': 'Hello!'},
+                    {'type': 'human', 'content': 'Who are you?'},
+                ],
             },
-            "config": {
-                "metadata": {"user_id": "test-user", "session_id": "test-session"}
+            'config': {
+                'metadata': {'user_id': 'test-user', 'session_id': 'test-session'},
             },
         }
 
         start_time = time.time()
 
         with self.client.post(
-            "/stream_messages",
+            '/stream_messages',
             headers=headers,
             json=data,
             catch_response=True,
-            name="/stream_messages first message",
+            name='/stream_messages first message',
             stream=True,
         ) as response:
             if response.status_code == 200:
@@ -63,16 +63,16 @@ class ChatStreamUser(HttpUser):
                         for chunk in event:
                             if (
                                 isinstance(chunk, dict)
-                                and chunk.get("type") == "constructor"
+                                and chunk.get('type') == 'constructor'
                             ):
-                                if not chunk.get("kwargs", {}).get("content"):
+                                if not chunk.get('kwargs', {}).get('content'):
                                     continue
                                 response.success()
                                 end_time = time.time()
                                 total_time = end_time - start_time
                                 self.environment.events.request.fire(
-                                    request_type="POST",
-                                    name="/stream_messages end",
+                                    request_type='POST',
+                                    name='/stream_messages end',
                                     response_time=total_time
                                     * 1000,  # Convert to milliseconds
                                     response_length=len(json.dumps(events)),
@@ -80,6 +80,6 @@ class ChatStreamUser(HttpUser):
                                     context={},
                                 )
                                 return
-                response.failure("No valid response content received")
+                response.failure('No valid response content received')
             else:
-                response.failure(f"Unexpected status code: {response.status_code}")
+                response.failure(f'Unexpected status code: {response.status_code}')

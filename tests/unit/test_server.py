@@ -20,11 +20,10 @@ from collections.abc import Generator
 from unittest.mock import MagicMock, patch
 
 import pytest
+from app.utils.typing import InputChat
 from fastapi.testclient import TestClient
 from google.auth.credentials import Credentials
 from langchain_core.messages import HumanMessage
-
-from app.utils.typing import InputChat
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -37,8 +36,8 @@ def mock_google_cloud_credentials() -> Generator[None, None, None]:
     with patch.dict(
         os.environ,
         {
-            "GOOGLE_APPLICATION_CREDENTIALS": "/path/to/mock/credentials.json",
-            "GOOGLE_CLOUD_PROJECT_ID": "mock-project-id",
+            'GOOGLE_APPLICATION_CREDENTIALS': '/path/to/mock/credentials.json',
+            'GOOGLE_CLOUD_PROJECT_ID': 'mock-project-id',
         },
     ):
         yield
@@ -48,56 +47,53 @@ def mock_google_cloud_credentials() -> Generator[None, None, None]:
 def mock_google_auth_default() -> Generator[None, None, None]:
     """Mock the google.auth.default function for testing."""
     mock_credentials = MagicMock(spec=Credentials)
-    mock_project = "mock-project-id"
+    mock_project = 'mock-project-id'
 
-    with patch("google.auth.default", return_value=(mock_credentials, mock_project)):
+    with patch('google.auth.default', return_value=(mock_credentials, mock_project)):
         yield
 
 
 @pytest.fixture
 def sample_input_chat() -> InputChat:
-    """
-    Fixture to create a sample input chat for testing.
+    """Fixture to create a sample input chat for testing.
     """
     return InputChat(
-        messages=[HumanMessage(content="What is the meaning of life?")],
+        messages=[HumanMessage(content='What is the meaning of life?')],
     )
 
 
 def test_redirect_root_to_docs() -> None:
-    """
-    Test that the root endpoint (/) redirects to the Swagger UI documentation.
+    """Test that the root endpoint (/) redirects to the Swagger UI documentation.
     """
     # Mock the agent module before importing server
     mock_agent = MagicMock()
-    with patch.dict(sys.modules, {"app.agent": mock_agent}):
+    with patch.dict(sys.modules, {'app.agent': mock_agent}):
         # Now import server after the mock is in place
         from app.server import app
 
         client = TestClient(app)
-        response = client.get("/")
+        response = client.get('/')
         assert response.status_code == 200
-        assert "Swagger UI" in response.text
+        assert 'Swagger UI' in response.text
 
 
 @pytest.mark.asyncio
 async def test_stream_chat_events() -> None:
-    """
-    Test the stream endpoint to ensure it correctly handles
+    """Test the stream endpoint to ensure it correctly handles
     streaming responses and generates the expected events.
     """
     input_data = {
-        "input": {
-            "messages": [
-                {"type": "human", "content": "Hello, AI!"},
-                {"type": "ai", "content": "Hello!"},
-                {"type": "human", "content": "What cooking recipes do you suggest?"},
+        'input': {
+            'messages': [
+                {'type': 'human', 'content': 'Hello, AI!'},
+                {'type': 'ai', 'content': 'Hello!'},
+                {'type': 'human', 'content': 'What cooking recipes do you suggest?'},
             ],
         },
-        "config": {"metadata": {"user_id": "test-user", "session_id": "test-session"}},
+        'config': {'metadata': {'user_id': 'test-user', 'session_id': 'test-session'}},
     }
 
-    mock_events = [{"content": "Mocked response"}, {"content": "Additional response"}]
+    mock_events = [{'content': 'Mocked response'}, {'content': 'Additional response'}]
 
     # Create a mock agent module
     mock_agent_module = MagicMock()
@@ -105,12 +101,12 @@ async def test_stream_chat_events() -> None:
     mock_agent_module.agent.stream.return_value = mock_events
 
     # Patch the module import
-    with patch.dict(sys.modules, {"app.agent": mock_agent_module}):
+    with patch.dict(sys.modules, {'app.agent': mock_agent_module}):
         # Import server after the mock is in place
         from app.server import app
 
         client = TestClient(app)
-        response = client.post("/stream_messages", json=input_data)
+        response = client.post('/stream_messages', json=input_data)
 
         assert response.status_code == 200
 
@@ -120,5 +116,5 @@ async def test_stream_chat_events() -> None:
                 events.append(json.loads(line))
 
         assert len(events) == 2
-        assert events[0]["content"] == "Mocked response"
-        assert events[1]["content"] == "Additional response"
+        assert events[0]['content'] == 'Mocked response'
+        assert events[1]['content'] == 'Additional response'

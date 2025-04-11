@@ -17,11 +17,10 @@ from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
+from app.utils.tracing import CloudTraceLoggingSpanExporter
 from google.cloud import logging as google_cloud_logging
 from google.cloud import storage
 from opentelemetry.sdk.trace import ReadableSpan
-
-from app.utils.tracing import CloudTraceLoggingSpanExporter
 
 
 @pytest.fixture
@@ -46,18 +45,18 @@ def mock_credentials() -> Any:
 def patch_auth(mock_credentials: Any) -> Generator[Mock, None, None]:
     """Patch the google.auth.default function."""
     with patch(
-        "google.auth.default", return_value=(mock_credentials, "project")
+        'google.auth.default', return_value=(mock_credentials, 'project'),
     ) as mock_auth:
         yield mock_auth
 
 
 @pytest.fixture
 def patch_clients(
-    mock_logging_client: Mock, mock_storage_client: Mock
+    mock_logging_client: Mock, mock_storage_client: Mock,
 ) -> Generator[None, None, None]:
     """Patch the logging and storage clients."""
-    with patch("google.cloud.logging.Client", return_value=mock_logging_client):
-        with patch("google.cloud.storage.Client", return_value=mock_storage_client):
+    with patch('google.cloud.logging.Client', return_value=mock_logging_client):
+        with patch('google.cloud.storage.Client', return_value=mock_storage_client):
             yield
 
 
@@ -71,60 +70,60 @@ def exporter(
 ) -> CloudTraceLoggingSpanExporter:
     """Create a CloudTraceLoggingSpanExporter instance for testing."""
     exporter = CloudTraceLoggingSpanExporter(
-        project_id="test-project",
+        project_id='test-project',
         logging_client=mock_logging_client,
         storage_client=mock_storage_client,
-        bucket_name="test-bucket",
+        bucket_name='test-bucket',
     )
     return exporter
 
 
 def test_init(exporter: CloudTraceLoggingSpanExporter) -> None:
     """Test the initialization of CloudTraceLoggingSpanExporter."""
-    assert exporter.project_id == "test-project"
-    assert exporter.bucket_name == "test-bucket"
+    assert exporter.project_id == 'test-project'
+    assert exporter.bucket_name == 'test-bucket'
     assert exporter.debug is False
 
 
 def test_store_in_gcs(exporter: CloudTraceLoggingSpanExporter) -> None:
     """Test the store_in_gcs method of CloudTraceLoggingSpanExporter."""
-    span_id = "test-span-id"
-    content = "test-content"
+    span_id = 'test-span-id'
+    content = 'test-content'
     uri = exporter.store_in_gcs(content, span_id)
-    assert uri == f"gs://test-bucket/spans/{span_id}.json"
-    exporter.bucket.blob.assert_called_once_with(f"spans/{span_id}.json")
+    assert uri == f'gs://test-bucket/spans/{span_id}.json'
+    exporter.bucket.blob.assert_called_once_with(f'spans/{span_id}.json')
 
 
-@patch("json.dumps")
+@patch('json.dumps')
 def test_process_large_attributes_small_payload(
-    mock_json_dumps: Mock, exporter: CloudTraceLoggingSpanExporter
+    mock_json_dumps: Mock, exporter: CloudTraceLoggingSpanExporter,
 ) -> None:
     """Test processing of small payload attributes."""
-    mock_json_dumps.return_value = "a" * 100  # Small payload
-    span_dict = {"attributes": {"key": "value"}}
-    result = exporter._process_large_attributes(span_dict, "span-id")
+    mock_json_dumps.return_value = 'a' * 100  # Small payload
+    span_dict = {'attributes': {'key': 'value'}}
+    result = exporter._process_large_attributes(span_dict, 'span-id')
     assert result == span_dict
 
 
-@patch("json.dumps")
+@patch('json.dumps')
 def test_process_large_attributes_large_payload(
-    mock_json_dumps: Mock, exporter: CloudTraceLoggingSpanExporter
+    mock_json_dumps: Mock, exporter: CloudTraceLoggingSpanExporter,
 ) -> None:
     """Test processing of large payload attributes."""
-    mock_json_dumps.return_value = "a" * (400 * 1024 + 1)  # Large payload
+    mock_json_dumps.return_value = 'a' * (400 * 1024 + 1)  # Large payload
     span_dict = {
-        "attributes": {
-            "key1": "value1",
-        }
+        'attributes': {
+            'key1': 'value1',
+        },
     }
-    result = exporter._process_large_attributes(span_dict, "span-id")
-    assert "uri_payload" in result["attributes"]
-    assert "url_payload" in result["attributes"]
+    result = exporter._process_large_attributes(span_dict, 'span-id')
+    assert 'uri_payload' in result['attributes']
+    assert 'url_payload' in result['attributes']
 
 
-@patch.object(CloudTraceLoggingSpanExporter, "_process_large_attributes")
+@patch.object(CloudTraceLoggingSpanExporter, '_process_large_attributes')
 def test_export(
-    mock_process_large_attributes: Mock, exporter: CloudTraceLoggingSpanExporter
+    mock_process_large_attributes: Mock, exporter: CloudTraceLoggingSpanExporter,
 ) -> None:
     """Test the export method of CloudTraceLoggingSpanExporter."""
     mock_span = Mock(spec=ReadableSpan)
@@ -132,7 +131,7 @@ def test_export(
     mock_span.get_span_context.return_value.span_id = 456
     mock_span.to_json.return_value = '{"key": "value"}'
 
-    mock_process_large_attributes.return_value = {"processed": "data"}
+    mock_process_large_attributes.return_value = {'processed': 'data'}
 
     exporter.export([mock_span])
 
