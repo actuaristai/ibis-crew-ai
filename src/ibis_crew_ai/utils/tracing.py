@@ -74,7 +74,7 @@ class CloudTraceLoggingSpanExporter(CloudTraceSpanExporter):
                 self.logger.debug(span_dict)
 
             # Log the span data to Google Cloud Logging
-            self.logger.log_struct(span_dict, severity="INFO")
+            self.logger.log_struct(span_dict, severity='INFO')
 
         # Export spans to Google Cloud Trace using the parent class method
         return super().export(spans)

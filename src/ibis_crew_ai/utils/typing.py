@@ -25,7 +25,7 @@ class InputChat(BaseModel):
     messages: list[
         Annotated[HumanMessage | AIMessage | ToolMessage, Field(discriminator='type')]
     ] = Field(
-        ..., description='The chat messages representing the current conversation.'
+        ..., description='The chat messages representing the current conversation.',
     )
 
 
@@ -45,7 +45,7 @@ class Feedback(BaseModel):
     """Represents feedback for a conversation."""
 
     score: int | float
-    text: str | None = ""
+    text: str | None = ''
     run_id: str
     log_type: Literal['feedback'] = 'feedback'
     service_name: Literal['ibis-crew-ai'] = 'ibis-crew-ai'

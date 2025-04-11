@@ -24,7 +24,7 @@ tools = [coding_tool]
 
 # 2. Set up the language model
 llm = ChatVertexAI(
-    model=LLM, location=LOCATION, temperature=0, max_tokens=4096, streaming=True
+    model=LLM, location=LOCATION, temperature=0, max_tokens=4096, streaming=True,
 ).bind_tools(tools)
 
 

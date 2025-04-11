@@ -3,7 +3,7 @@
 
 set shell:= ["pwsh", "-c"]
 
-PROJECT_NAME:= "ibis-crew-ai"
+PROJECT_NAME:= "ibis_crew_ai"
 REMOTE_REPO := "https://github.com/actuaristai/ibis-crew-ai.git"
 DESCRIPTION := "Data manipulation using ibis with AI"
 
@@ -44,8 +44,8 @@ docs: _docs-build
 
 # Lint using ruff
 lint: 
-	uv run --only-group lint ruff check src/{{PROJECT_NAME}} --fix
-	uv run --only-group lint ruff check tests --fix
+	uv run --extra lint ruff check src/{{PROJECT_NAME}} --fix
+	uv run --extra lint ruff check tests --fix
 
 # test using pytest
 test:
