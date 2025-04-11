@@ -1,32 +1,18 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+"""Multimodal utilities for handling multimedia content in Google Cloud Storage (GCS)."""
+
 
 import base64
 from typing import Any
 from urllib.parse import quote
 
 from google.cloud import storage
+from loguru import logger
 
-HELP_MESSAGE_MULTIMODALITY = (
-    'For Gemini models to access the URIs you provide, store them in '
-    'Google Cloud Storage buckets within the same project used by Gemini.'
-)
+HELP_MESSAGE_MULTIMODALITY = ('For Gemini models to access the URIs you provide, store them in '
+                              'Google Cloud Storage buckets within the same project used by Gemini.')
 
-HELP_GCS_CHECKBOX = (
-    'Enabling GCS upload will increase the app observability by avoiding'
-    ' forwarding and logging large byte strings within the app.'
-)
+HELP_GCS_CHECKBOX = ('Enabling GCS upload will increase the app observability by avoiding'
+                     ' forwarding and logging large byte strings within the app.')
 
 
 def format_content(content: str | list[dict[str, Any]]) -> str:
@@ -35,8 +21,7 @@ def format_content(content: str | list[dict[str, Any]]) -> str:
         return content
     if len(content) == 1 and content[0]['type'] == 'text':
         return content[0]['text']
-    markdown = """Media:
-"""
+    markdown = """Media:"""
     text = ''
     for part in content:
         if part['type'] == 'text':
@@ -45,12 +30,7 @@ def format_content(content: str | list[dict[str, Any]]) -> str:
         if part['type'] == 'image_url':
             image_url = part['image_url']['url']
             image_markdown = f'<img src="{image_url}" width="100">'
-            markdown = (
-                markdown
-                + f"""
-- {image_markdown}
-"""
-            )
+            markdown = (markdown + f"""- {image_markdown}""")
         if part['type'] == 'media':
             # Local other media
             if 'data' in part:
@@ -61,26 +41,13 @@ def format_content(content: str | list[dict[str, Any]]) -> str:
                 if 'image' in part['mime_type']:
                     image_url = gs_uri_to_https_url(part['file_uri'])
                     image_markdown = f'<img src="{image_url}" width="100">'
-                    markdown = (
-                        markdown
-                        + f"""
-- {image_markdown}
-"""
-                    )
+                    markdown = (markdown + f"""- {image_markdown}""")
                 # GCS other media
                 else:
                     image_url = gs_uri_to_https_url(part['file_uri'])
-                    markdown = (
-                        markdown + f"- Remote media: "
-                        f"[{part['file_uri']}]({image_url})\n"
-                    )
-    markdown = (
-        markdown
-        + f"""
-
-{text}"""
-    )
-    return markdown
+                    markdown = (markdown + f"- Remote media: "
+                                f"[{part['file_uri']}]({image_url})\n")
+    return (markdown + f"""{text}""")
 
 
 def get_gcs_blob_mime_type(gcs_uri: str) -> str | None:
@@ -101,15 +68,13 @@ def get_gcs_blob_mime_type(gcs_uri: str) -> str | None:
         bucket = storage_client.bucket(bucket_name)
         blob = bucket.blob(object_name)
         blob.reload()
-        return blob.content_type
-    except Exception as e:
-        print(f'Error retrieving MIME type for {gcs_uri}: {e}')
+        return blob.content_type  # noqa: TRY300
+    except Exception as e:  # noqa: BLE001
+        logger.error(f'Error retrieving MIME type for {gcs_uri}: {e}')
         return None  # Indicate failure
 
 
-def get_parts_from_files(
-    upload_gcs_checkbox: bool, uploaded_files: list[Any], gcs_uris: str,
-) -> list[dict[str, Any]]:
+def get_parts_from_files(upload_gcs_checkbox: bool, uploaded_files: list[Any], gcs_uris: str) -> list[dict[str, Any]]:  # noqa: FBT001
     """Processes uploaded files and GCS URIs to create a list of content parts."""
     parts = []
     # read from local directly
@@ -117,40 +82,30 @@ def get_parts_from_files(
         for uploaded_file in uploaded_files:
             im_bytes = uploaded_file.read()
             if 'image' in uploaded_file.type:
-                content = {
-                    'type': 'image_url',
-                    'image_url': {
-                        'url': f"data:{uploaded_file.type};base64,"
-                        f"{base64.b64encode(im_bytes).decode('utf-8')}",
-                    },
-                    'file_name': uploaded_file.name,
-                }
+                content = {'type': 'image_url',
+                           'image_url': {'url': f"data:{uploaded_file.type};base64,"
+                                         f"{base64.b64encode(im_bytes).decode('utf-8')}"},
+                           'file_name': uploaded_file.name}
             else:
-                content = {
-                    'type': 'media',
-                    'data': base64.b64encode(im_bytes).decode('utf-8'),
-                    'file_name': uploaded_file.name,
-                    'mime_type': uploaded_file.type,
-                }
+                content = {'type': 'media',
+                           'data': base64.b64encode(im_bytes).decode('utf-8'),
+                           'file_name': uploaded_file.name,
+                           'mime_type': uploaded_file.type}
 
             parts.append(content)
     if gcs_uris != '':
         for uri in gcs_uris.split(','):
-            content = {
-                'type': 'media',
-                'file_uri': uri,
-                'mime_type': get_gcs_blob_mime_type(uri),
-            }
+            content = {'type': 'media',
+                       'file_uri': uri,
+                       'mime_type': get_gcs_blob_mime_type(uri)}
             parts.append(content)
     return parts
 
 
-def upload_bytes_to_gcs(
-    bucket_name: str,
-    blob_name: str,
-    file_bytes: bytes,
-    content_type: str | None = None,
-) -> str:
+def upload_bytes_to_gcs(bucket_name: str,
+                        blob_name: str,
+                        file_bytes: bytes,
+                        content_type: str | None = None) -> str:
     """Uploads a bytes object to Google Cloud Storage and returns the GCS URI.
 
     Args:
@@ -171,8 +126,7 @@ def upload_bytes_to_gcs(
     blob = bucket.blob(blob_name)
     blob.upload_from_string(data=file_bytes, content_type=content_type)
     # Construct and return the GCS URI
-    gcs_uri = f'gs://{bucket_name}/{blob_name}'
-    return gcs_uri
+    return f'gs://{bucket_name}/{blob_name}'
 
 
 def gs_uri_to_https_url(gs_uri: str) -> str:
@@ -185,7 +139,8 @@ def gs_uri_to_https_url(gs_uri: str) -> str:
         The corresponding HTTPS URL, or None if the GS URI is invalid.
     """
     if not gs_uri.startswith('gs://'):
-        raise ValueError('Invalid GS URI format')
+        msg = 'Invalid GS URI format'
+        raise ValueError(msg)
 
     gs_uri = gs_uri[5:]
 
@@ -194,23 +149,20 @@ def gs_uri_to_https_url(gs_uri: str) -> str:
     object_name = quote(object_name)
 
     # Construct the HTTPS URL
-    https_url = f'https://storage.mtls.cloud.google.com/{bucket_name}/{object_name}'
-    return https_url
+    return f'https://storage.mtls.cloud.google.com/{bucket_name}/{object_name}'
 
 
-def upload_files_to_gcs(st: Any, bucket_name: str, files_to_upload: list[Any]) -> None:
+def upload_files_to_gcs(st: Any, bucket_name: str, files_to_upload: list[Any]) -> None:  # noqa: ANN401
     """Upload multiple files to Google Cloud Storage and store URIs in session state."""
     bucket_name = bucket_name.replace('gs://', '')
     uploaded_uris = []
     for file in files_to_upload:
         if file:
             file_bytes = file.read()
-            gcs_uri = upload_bytes_to_gcs(
-                bucket_name=bucket_name,
-                blob_name=file.name,
-                file_bytes=file_bytes,
-                content_type=file.type,
-            )
+            gcs_uri = upload_bytes_to_gcs(bucket_name=bucket_name,
+                                          blob_name=file.name,
+                                          file_bytes=file_bytes,
+                                          content_type=file.type)
             uploaded_uris.append(gcs_uri)
     st.session_state.uploader_key += 1
     st.session_state['gcs_uris_to_be_sent'] = ','.join(uploaded_uris)
