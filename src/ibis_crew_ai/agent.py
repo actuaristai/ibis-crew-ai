@@ -9,14 +9,14 @@ from langgraph.prebuilt import ToolNode
 
 from ibis_crew_ai.crew.crew import DevCrew
 
-LOCATION = "us-central1"
-LLM = "gemini-2.0-flash-001"
+LOCATION = 'us-central1'
+LLM = 'gemini-2.0-flash-001'
 
 
 @tool
 def coding_tool(code_instructions: str) -> str:
     """Use this tool to write a python program given a set of requirements and or instructions."""
-    inputs = {"code_instructions": code_instructions}
+    inputs = {'code_instructions': code_instructions}
     return DevCrew().crew().kickoff(inputs=inputs)
 
 
@@ -31,8 +31,8 @@ llm = ChatVertexAI(
 # 3. Define workflow components
 def should_continue(state: MessagesState) -> str:
     """Determines whether to use the crew or end the conversation."""
-    last_message = state["messages"][-1]
-    return "dev_crew" if last_message.tool_calls else END
+    last_message = state['messages'][-1]
+    return 'dev_crew' if last_message.tool_calls else END
 
 
 def call_model(state: MessagesState, config: RunnableConfig) -> dict[str, BaseMessage]:
@@ -51,23 +51,21 @@ def call_model(state: MessagesState, config: RunnableConfig) -> dict[str, BaseMe
         "are useful for the user."
     )
 
-    messages_with_system = [{"type": "system", "content": system_message}] + state[
-        "messages"
-    ]
+    messages_with_system = [{'type': 'system', 'content': system_message}] + state['messages']
     # Forward the RunnableConfig object to ensure the agent is capable of streaming the response.
     response = llm.invoke(messages_with_system, config)
-    return {"messages": response}
+    return {'messages': response}
 
 
 # 4. Create the workflow graph
 workflow = StateGraph(MessagesState)
-workflow.add_node("agent", call_model)
-workflow.add_node("dev_crew", ToolNode(tools))
-workflow.set_entry_point("agent")
+workflow.add_node('agent', call_model)
+workflow.add_node('dev_crew', ToolNode(tools))
+workflow.set_entry_point('agent')
 
 # 5. Define graph edges
-workflow.add_conditional_edges("agent", should_continue)
-workflow.add_edge("dev_crew", "agent")
+workflow.add_conditional_edges('agent', should_continue)
+workflow.add_edge('dev_crew', 'agent')
 
 # 6. Compile the workflow
 agent = workflow.compile()
