@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse, StreamingResponse
 from google.cloud import logging as google_cloud_logging
 from langchain_core.runnables import RunnableConfig
+from loguru import logger  # Import loguru logger
 from traceloop.sdk import Instruments, Traceloop
 
 from ibis_crew_ai.agent import agent
@@ -16,8 +17,24 @@ from ibis_crew_ai.utils.typing import Feedback, InputChat, Request, dumps, ensur
 # Initialize FastAPI app and logging
 app = FastAPI(title='ibis-crew-ai',
               description='API for interacting with the Agent ibis-crew-ai')
+
+# Initialize Google Cloud Logging
 logging_client = google_cloud_logging.Client()
-logger = logging_client.logger(__name__)
+gcloud_logger = logging_client.logger(__name__)
+
+# Add a custom sink to forward loguru logs to Google Cloud Logging
+
+
+class GoogleCloudSink:
+    """Custom sink to forward loguru logs to Google Cloud Logging."""
+
+    def write(self, message: str) -> None:
+        """Write a log message to Google Cloud Logging."""
+        record = message.strip()
+        gcloud_logger.log_text(record)
+
+
+logger.add(GoogleCloudSink(), level='INFO')  # Forward loguru logs to Google Cloud Logging
 
 # Initialize Telemetry
 try:
@@ -25,8 +42,8 @@ try:
                    disable_batch=False,
                    exporter=CloudTraceLoggingSpanExporter(),
                    instruments={Instruments.LANGCHAIN, Instruments.CREW})
-except Exception:
-    logger.exception('Failed to initialize Telemetry')
+except (ValueError, RuntimeError) as e:  # Replace with specific exceptions
+    logger.exception('Failed to initialize Telemetry: {}', e)
 
 
 def set_tracing_properties(config: RunnableConfig) -> None:
@@ -35,11 +52,14 @@ def set_tracing_properties(config: RunnableConfig) -> None:
     Args:
         config: Optional RunnableConfig containing request metadata
     """
-    Traceloop.set_association_properties({'log_type': 'tracing',
-                                          'run_id': str(config.get('run_id', 'None')),
-                                          'user_id': config['metadata'].pop('user_id', 'None'),
-                                          'session_id': config['metadata'].pop('session_id', 'None'),
-                                          'commit_sha': os.environ.get('COMMIT_SHA', 'None')})
+    try:
+        Traceloop.set_association_properties({'log_type': 'tracing',
+                                              'run_id': str(config.get('run_id', 'None')),
+                                              'user_id': config['metadata'].pop('user_id', 'None'),
+                                              'session_id': config['metadata'].pop('session_id', 'None'),
+                                              'commit_sha': os.environ.get('COMMIT_SHA', 'None')})
+    except Exception as e:  # noqa: BLE001
+        logger.error('Error setting tracing properties: {}', e)
 
 
 def stream_messages(input_msg: InputChat,
@@ -78,7 +98,7 @@ def collect_feedback(feedback: Feedback) -> dict[str, str]:
     Returns:
         Success message
     """
-    logger.log_struct(feedback.model_dump(), severity='INFO')
+    logger.info('Feedback received: {}', feedback.model_dump())
     return {'status': 'success'}
 
 
@@ -92,6 +112,7 @@ def stream_chat_events(request: Request) -> StreamingResponse:
     Returns:
         Streaming response of chat events
     """
+    logger.info('Streaming chat events for session: {}', request.config.get('session_id', 'unknown'))
     return StreamingResponse(stream_messages(input_msg=request.input, config=request.config),
                              media_type='text/event-stream')
 
