@@ -1,19 +1,6 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+"""Integration tests for the FastAPI server."""  # noqa: INP001
 
 import json
-import logging
 import os
 import subprocess
 import sys
@@ -25,11 +12,8 @@ from typing import Any
 
 import pytest
 import requests
+from loguru import logger
 from requests.exceptions import RequestException
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 BASE_URL = 'http://127.0.0.1:8000/'
 STREAM_URL = BASE_URL + 'stream_messages'
@@ -38,7 +22,7 @@ FEEDBACK_URL = BASE_URL + 'feedback'
 HEADERS = {'Content-Type': 'application/json'}
 
 
-def log_output(pipe: Any, log_func: Any) -> None:
+def log_output(pipe: Any, log_func: Any) -> None:  # noqa: ANN401
     """Log the output from the given pipe."""
     for line in iter(pipe.readline, ''):
         log_func(line.strip())
@@ -46,34 +30,26 @@ def log_output(pipe: Any, log_func: Any) -> None:
 
 def start_server() -> subprocess.Popen[str]:
     """Start the FastAPI server using subprocess and log its output."""
-    command = [
-        sys.executable,
-        '-m',
-        'uvicorn',
-        'app.server:app',
-        '--host',
-        '0.0.0.0',
-        '--port',
-        '8000',
-    ]
+    command = [sys.executable,
+               '-m',
+               'uvicorn',
+               'app.server:app',
+               '--host',
+               'localhost',
+               '--port',
+               '8000']
     env = os.environ.copy()
     env['INTEGRATION_TEST'] = 'TRUE'
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        bufsize=1,
-        env=env,
-    )
+    process = subprocess.Popen(command,  # noqa: S603
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
+                               text=True,
+                               bufsize=1,
+                               env=env)
 
     # Start threads to log stdout and stderr in real-time
-    threading.Thread(
-        target=log_output, args=(process.stdout, logger.info), daemon=True,
-    ).start()
-    threading.Thread(
-        target=log_output, args=(process.stderr, logger.error), daemon=True,
-    ).start()
+    threading.Thread(target=log_output, args=(process.stdout, logger.info), daemon=True).start()
+    threading.Thread(target=log_output, args=(process.stderr, logger.error), daemon=True).start()
 
     return process
 
@@ -84,7 +60,7 @@ def wait_for_server(timeout: int = 60, interval: int = 1) -> bool:
     while time.time() - start_time < timeout:
         try:
             response = requests.get('http://127.0.0.1:8000/docs', timeout=10)
-            if response.status_code == 200:
+            if response.status_code == 200:  # noqa: PLR2004
                 logger.info('Server is ready')
                 return True
         except RequestException:
@@ -95,7 +71,7 @@ def wait_for_server(timeout: int = 60, interval: int = 1) -> bool:
 
 
 @pytest.fixture(scope='session')
-def server_fixture(request: Any) -> Iterator[subprocess.Popen[str]]:
+def server_fixture(request: Any) -> Iterator[subprocess.Popen[str]]:  # noqa: ANN401
     """Pytest fixture to start and stop the server for testing."""
     logger.info('Starting server process')
     server_process = start_server()
@@ -109,29 +85,25 @@ def server_fixture(request: Any) -> Iterator[subprocess.Popen[str]]:
         server_process.wait()
         logger.info('Server process stopped')
 
-    request.addfinalizer(stop_server)
+    request.addfinalizer(stop_server)  # noqa: PT021
     return server_process
 
 
-def test_chat_stream(server_fixture: subprocess.Popen[str]) -> None:
+def test_chat_stream() -> None:
     """Test the chat stream functionality."""
     logger.info('Starting chat stream test')
 
-    data = {
-        'input': {
-            'messages': [
-                {'type': 'human', 'content': 'Hello, AI!'},
-                {'type': 'ai', 'content': 'Hello!'},
-                {'type': 'human', 'content': 'What is the weather in NY?'},
-            ],
-        },
-        'config': {'metadata': {'user_id': 'test-user', 'session_id': 'test-session'}},
-    }
+    data = {'input': {'messages': [{'type': 'human',
+                                    'content': 'Hello, AI!'},
+                                   {'type': 'ai',
+                                    'content': 'Hello!'},
+                                   {'type': 'human',
+                                    'content': 'What is the weather in NY?'}]},
+            'config': {'metadata': {'user_id': 'test-user',
+                                    'session_id': 'test-session'}}}
 
-    response = requests.post(
-        STREAM_URL, headers=HEADERS, json=data, stream=True, timeout=10,
-    )
-    assert response.status_code == 200
+    response = requests.post(STREAM_URL, headers=HEADERS, json=data, stream=True, timeout=10)
+    assert response.status_code == 200  # noqa: PLR2004
 
     events = [json.loads(line) for line in response.iter_lines() if line]
     assert events, 'No events received from stream'
@@ -139,7 +111,7 @@ def test_chat_stream(server_fixture: subprocess.Popen[str]) -> None:
     # Verify each event is a tuple of message and metadata
     for event in events:
         assert isinstance(event, list), 'Event should be a list'
-        assert len(event) == 2, 'Event should contain message and metadata'
+        assert len(event) == 2, 'Event should contain message and metadata'  # noqa: PLR2004
         message, _ = event
 
         # Verify message structure
@@ -157,35 +129,25 @@ def test_chat_stream(server_fixture: subprocess.Popen[str]) -> None:
     assert has_content, 'At least one message should have content'
 
 
-def test_chat_stream_error_handling(server_fixture: subprocess.Popen[str]) -> None:
+def test_chat_stream_error_handling() -> None:
     """Test the chat stream error handling."""
     logger.info('Starting chat stream error handling test')
 
-    data = {
-        'input': {'messages': [{'type': 'invalid_type', 'content': 'Cause an error'}]},
-    }
-    response = requests.post(
-        STREAM_URL, headers=HEADERS, json=data, stream=True, timeout=10,
-    )
+    data = {'input': {'messages': [{'type': 'invalid_type',
+                                    'content': 'Cause an error'}]}}
+    response = requests.post(STREAM_URL, headers=HEADERS, json=data, stream=True, timeout=10)
 
-    assert response.status_code == 422, (
-        f'Expected status code 422, got {response.status_code}'
-    )
+    assert response.status_code == 422, (  # noqa: PLR2004
+        f'Expected status code 422, got {response.status_code}')
     logger.info('Error handling test completed successfully')
 
 
-def test_collect_feedback(server_fixture: subprocess.Popen[str]) -> None:
-    """Test the feedback collection endpoint (/feedback) to ensure it properly
-    logs the received feedback.
-    """
+def test_collect_feedback() -> None:
+    """Test the feedback collection endpoint (/feedback) to ensure it properly logs the received feedback."""
     # Create sample feedback data
-    feedback_data = {
-        'score': 4,
-        'run_id': str(uuid.uuid4()),
-        'text': 'Great response!',
-    }
+    feedback_data = {'score': 4,
+                     'run_id': str(uuid.uuid4()),
+                     'text': 'Great response!'}
 
-    response = requests.post(
-        FEEDBACK_URL, json=feedback_data, headers=HEADERS, timeout=10,
-    )
-    assert response.status_code == 200
+    response = requests.post(FEEDBACK_URL, json=feedback_data, headers=HEADERS, timeout=10)
+    assert response.status_code == 200  # noqa: PLR2004
