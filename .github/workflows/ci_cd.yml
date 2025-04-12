@@ -52,7 +52,14 @@ jobs:
       - name: Install Just
         run: |
           sudo apt install just
-      
+
+      - name: Set up Google Cloud credentials
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        run: |
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > /tmp/credentials.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/credentials.json
+        
       - name: Run tests with pytest
         run: just test
         continue-on-error: true
