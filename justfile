@@ -51,8 +51,11 @@ lint:
 
 # test using pytest
 test:
-	uv run --dev pytest --cov-report term-missing --cov={{PROJECT_NAME}} -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
-	uv run --dev pytest --cov-report term-missing --cov=tests -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
+	#!/usr/bin/env bash
+	uv run pytest tests/unit
+	uv run uvicorn ibis_crew_ai.server:app --host 0.0.0.0 --port 8000 & uv run pytest tests/integration
+	# uv run --dev pytest --cov-report term-missing --cov={{PROJECT_NAME}} -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
+	# uv run --dev pytest --cov-report term-missing --cov=tests -v -p no:faulthandler -W ignore::DeprecationWarning --verbose --doctest-modules
 
 # set up playground environment
 run:

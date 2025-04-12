@@ -27,7 +27,7 @@ jobs:
         run: |
           pip install uv
           sudo apt install just
-          uv sync --only-group lint
+          uv sync --extra lint
 
       - name: Lint code with ruff
         run: just lint
