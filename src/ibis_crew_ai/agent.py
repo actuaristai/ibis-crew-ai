@@ -20,13 +20,11 @@ def coding_tool(code_instructions: str) -> str:
 
 def initialize_llm() -> ChatVertexAI:
     """Initializes and returns the language model."""
-    return ChatVertexAI(
-        model=conf['LLM'],
-        location=conf['LOCATION'],
-        temperature=0,
-        max_tokens=4096,
-        streaming=True
-    )
+    return ChatVertexAI(model=conf['LLM'],
+                        location=conf['LOCATION'],
+                        temperature=0,
+                        max_tokens=4096,
+                        streaming=True)
 
 
 def should_continue(state: MessagesState) -> str:
