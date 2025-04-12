@@ -58,14 +58,11 @@ def set_tracing_properties(config: RunnableConfig) -> None:
     """
     try:
         # Check if Traceloop is initialized/available before using it
-        if Traceloop.is_initialized():
-            Traceloop.set_association_properties({'log_type': 'tracing',
-                                                'run_id': str(config.get('run_id', 'None')),
-                                                'user_id': config['metadata'].pop('user_id', 'None'),
-                                                'session_id': config['metadata'].pop('session_id', 'None'),
-                                                'commit_sha': os.environ.get('COMMIT_SHA', 'None')})
-        else:
-            logger.warning("Traceloop not initialized, skipping setting association properties.")
+        Traceloop.set_association_properties({'log_type': 'tracing',
+                                            'run_id': str(config.get('run_id', 'None')),
+                                            'user_id': config['metadata'].pop('user_id', 'None'),
+                                            'session_id': config['metadata'].pop('session_id', 'None'),
+                                            'commit_sha': os.environ.get('COMMIT_SHA', 'None')})
     except Exception as e:  # noqa: BLE001
         logger.error('Error setting tracing properties: {}', e)
 
