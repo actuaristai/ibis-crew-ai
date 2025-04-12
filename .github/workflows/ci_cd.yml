@@ -59,10 +59,11 @@ jobs:
         run: |
           echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > /tmp/credentials.json
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/credentials.json
-        
+          export GOOGLE_CLOUD_PROJECT="ace-world-453411-e9"
       - name: Run tests with pytest
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
+          GOOGLE_CLOUD_PROJECT: "ace-world-453411-e9"
         run: just test
         continue-on-error: true
 
