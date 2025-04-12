@@ -61,6 +61,8 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/credentials.json
         
       - name: Run tests with pytest
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
         run: just test
         continue-on-error: true
 
