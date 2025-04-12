@@ -15,7 +15,7 @@ import requests
 from loguru import logger
 from requests.exceptions import RequestException
 
-BASE_URL = 'http://127.0.0.1:8000/'
+BASE_URL = 'https://genai-app-sample-786665877452.us-central1.run.app/'
 STREAM_URL = BASE_URL + 'stream_messages'
 FEEDBACK_URL = BASE_URL + 'feedback'
 
@@ -59,7 +59,7 @@ def wait_for_server(timeout: int = 60, interval: int = 1) -> bool:
     start_time = time.time()
     while time.time() - start_time < timeout:
         try:
-            response = requests.get('http://127.0.0.1:8000/docs', timeout=10)
+            response = requests.get(F'{BASE_URL}docs', timeout=10)
             if response.status_code == 200:  # noqa: PLR2004
                 logger.info('Server is ready')
                 return True
