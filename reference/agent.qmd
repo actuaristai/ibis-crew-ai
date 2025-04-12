@@ -1,0 +1,55 @@
+# agent { #ibis_crew_ai.agent }
+
+`agent`
+
+Main agent code.
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [agent_workflow](#ibis_crew_ai.agent.agent_workflow) | Creates the workflow for the agent. |
+| [call_model](#ibis_crew_ai.agent.call_model) | Calls the language model and returns the response. |
+| [coding_tool](#ibis_crew_ai.agent.coding_tool) | Use this tool to write a python program given a set of requirements and or instructions. |
+| [initialize_llm](#ibis_crew_ai.agent.initialize_llm) | Initializes and returns the language model. |
+| [should_continue](#ibis_crew_ai.agent.should_continue) | Determines whether to use the crew or end the conversation. |
+
+### agent_workflow { #ibis_crew_ai.agent.agent_workflow }
+
+```python
+agent.agent_workflow()
+```
+
+Creates the workflow for the agent.
+
+### call_model { #ibis_crew_ai.agent.call_model }
+
+```python
+agent.call_model(state, config, llm)
+```
+
+Calls the language model and returns the response.
+
+### coding_tool { #ibis_crew_ai.agent.coding_tool }
+
+```python
+agent.coding_tool(code_instructions)
+```
+
+Use this tool to write a python program given a set of requirements and or instructions.
+
+### initialize_llm { #ibis_crew_ai.agent.initialize_llm }
+
+```python
+agent.initialize_llm()
+```
+
+Initializes and returns the language model.
+
+### should_continue { #ibis_crew_ai.agent.should_continue }
+
+```python
+agent.should_continue(state)
+```
+
+Determines whether to use the crew or end the conversation.

@@ -75,6 +75,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+_site
 
 # PyBuilder
 target/
@@ -197,3 +198,4 @@ my_env.tfvars
 .requirements.txt
 
 .secrets.toml
+/.quarto/
