@@ -4,7 +4,7 @@ format:
     html:
         number-sections: true
         html-table-processing: none
-jupyter: ibis-crew-ai # uv run python -m ipykernel install --user --name ibis-crew-ai
+jupyter: ibis_crew_ai # uv run python -m ipykernel install --user --name ibis_crew_ai
 echo: false
 execute:
   freeze: auto  # re-render only when source changes
