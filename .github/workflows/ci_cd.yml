@@ -57,7 +57,8 @@ jobs:
         env:
           GCP_SA_KEY: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         run: |
-          echo "$GOOGLE_APPLICATION_CREDENTIALS" > "${HOME}/gcloud-key.json"
+          echo "$GOOGLE_APPLICATION_CREDENTIALS" | base64 -d > "${HOME}/gcloud-key.json"
+          cat "${HOME}/gcloud-key.json" | head -n 5
           gcloud auth activate-service-account --key-file="${HOME}/gcloud-key.json"
           gcloud config set project ace-world-453411-e9
 
