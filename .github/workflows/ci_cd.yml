@@ -60,7 +60,6 @@ jobs:
           printf '%s' "$GOOGLE_APPLICATION_CREDENTIALS" | base64 -d > "${HOME}/gcloud-key.json" 2>/dev/null
           gcloud auth activate-service-account --key-file="${HOME}/gcloud-key.json"
           gcloud config set project ace-world-453411-e9
-          just test
             
       - name: Run tests with pytest
         env:
