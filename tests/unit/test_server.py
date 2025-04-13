@@ -49,4 +49,3 @@ def test_redirect_root_to_docs() -> None:
         response = client.get('/')
         assert response.status_code == 200  # noqa: PLR2004
         assert 'Swagger UI' in response.text
-
