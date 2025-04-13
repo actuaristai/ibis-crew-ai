@@ -36,7 +36,7 @@ def initialize_telemetry() -> None:
     """Initializes Traceloop Telemetry."""
     # Keep the initialization logic, but in a function
     try:
-        logger.info("Attempting to initialize Traceloop Telemetry...")
+        logger.info('Attempting to initialize Traceloop Telemetry...')
         Traceloop.init(app_name=app.title,
                        disable_batch=False, # Consider disable_batch=True for tests if preferred
                        exporter=CloudTraceLoggingSpanExporter(),

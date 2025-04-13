@@ -1,6 +1,5 @@
 """Unit tests for the FastAPI server endpoints."""  # noqa: INP001
 
-import json
 import os
 import sys
 from collections.abc import Generator
