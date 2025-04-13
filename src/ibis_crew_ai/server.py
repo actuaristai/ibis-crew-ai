@@ -23,14 +23,19 @@ logging_client = google_cloud_logging.Client()
 gcloud_logger = logging_client.logger(__name__)
 
 # Add a custom sink to forward loguru logs to Google Cloud Logging
+
+
 class GoogleCloudSink:
     """Custom sink to forward loguru logs to Google Cloud Logging."""
+
     def write(self, message: str) -> None:
         """Write a log message to Google Cloud Logging."""
         record = message.strip()
         gcloud_logger.log_text(record)
 
+
 logger.add(GoogleCloudSink(), level='INFO')  # Forward loguru logs to Google Cloud Logging
+
 
 def initialize_telemetry() -> None:
     """Initializes Traceloop Telemetry."""
@@ -38,16 +43,16 @@ def initialize_telemetry() -> None:
     try:
         logger.info('Attempting to initialize Traceloop Telemetry...')
         Traceloop.init(app_name=app.title,
-                       disable_batch=False, # Consider disable_batch=True for tests if preferred
+                       disable_batch=False,  # Consider disable_batch=True for tests if preferred
                        exporter=CloudTraceLoggingSpanExporter(),
                        instruments={Instruments.LANGCHAIN, Instruments.CREW})
         logger.info('Traceloop Telemetry initialized successfully.')
     except ImportError as e:
         logger.warning('Traceloop or dependencies not fully installed. Skipping Telemetry init: {}', e)
-    except (ValueError, RuntimeError) as e: # Keep specific exceptions
+    except (ValueError, RuntimeError) as e:  # Keep specific exceptions
         logger.exception('Failed to initialize Telemetry: {}', e)
-    except Exception as e: # Catch broader exceptions during init  # noqa: BLE001
-         logger.exception('An unexpected error occurred during Telemetry initialization: {}', e)
+    except Exception as e:  # Catch broader exceptions during init  # noqa: BLE001
+        logger.exception('An unexpected error occurred during Telemetry initialization: {}', e)
 
 
 def set_tracing_properties(config: RunnableConfig) -> None:
@@ -59,10 +64,10 @@ def set_tracing_properties(config: RunnableConfig) -> None:
     try:
         # Check if Traceloop is initialized/available before using it
         Traceloop.set_association_properties({'log_type': 'tracing',
-                                            'run_id': str(config.get('run_id', 'None')),
-                                            'user_id': config['metadata'].pop('user_id', 'None'),
-                                            'session_id': config['metadata'].pop('session_id', 'None'),
-                                            'commit_sha': os.environ.get('COMMIT_SHA', 'None')})
+                                              'run_id': str(config.get('run_id', 'None')),
+                                              'user_id': config['metadata'].pop('user_id', 'None'),
+                                              'session_id': config['metadata'].pop('session_id', 'None'),
+                                              'commit_sha': os.environ.get('COMMIT_SHA', 'None')})
     except Exception as e:  # noqa: BLE001
         logger.error('Error setting tracing properties: {}', e)
 
