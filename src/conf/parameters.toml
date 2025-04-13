@@ -1,0 +1,4 @@
+# Put parameters here in form of TOML
+
+LOCATION = 'us-central1'
+LLM = 'gemini-2.0-flash-001'

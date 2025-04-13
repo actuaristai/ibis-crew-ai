@@ -75,6 +75,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+_site
 
 # PyBuilder
 target/
@@ -145,7 +146,7 @@ dmypy.json
 .terraform*
 .Terraform*
 terraform.tfstate
-
+terraform.tfstate.backup
 tmp*
 
 # Node
@@ -195,3 +196,6 @@ my_env.tfvars
 .saved_chats
 .env
 .requirements.txt
+
+.secrets.toml
+/.quarto/
