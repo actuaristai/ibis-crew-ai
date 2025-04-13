@@ -53,6 +53,14 @@ jobs:
         run: |
           sudo apt install just
 
+      - name: Authenticate with GCP
+        env:
+          GCP_SA_KEY: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        run: |
+          echo "$GOOGLE_APPLICATION_CREDENTIALS" | base64 -d > "${HOME}/gcloud-key.json"
+          gcloud auth activate-service-account --key-file="${HOME}/gcloud-key.json"
+          gcloud config set project ace-world-453411-e9
+
       - name: Run tests with pytest
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
