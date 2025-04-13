@@ -1,7 +1,6 @@
 # ibis-crew-ai
 
-A multi-agent system implemented with CrewAI created to support coding activities
-Agent generated with [`googleCloudPlatform/agent-starter-pack`](https://github.com/GoogleCloudPlatform/agent-starter-pack) version `0.2.3`
+A multi-agent system implemented with CrewAI created to support coding activities.
 
 ## Project Structure
 
@@ -9,14 +8,14 @@ This project is organized as follows:
 
 ```
 ibis-crew-ai/
-├── app/                 # Core application code
+├── src / ibis-crew-ai   # Core application code
 │   ├── agent.py         # Main agent logic
 │   ├── server.py        # FastAPI Backend server
 │   └── utils/           # Utility functions and helpers
 ├── deployment/          # Infrastructure and deployment scripts
 ├── notebooks/           # Jupyter notebooks for prototyping and evaluation
 ├── tests/               # Unit, integration, and load tests
-├── Makefile             # Makefile for common commands
+├── justfile             # Makefile for common commands
 └── pyproject.toml       # Project dependencies and configuration
 ```
 
@@ -26,16 +25,14 @@ Before you begin, ensure you have:
 - **uv**: Python package manager - [Install](https://docs.astral.sh/uv/getting-started/installation/)
 - **Google Cloud SDK**: For GCP services - [Install](https://cloud.google.com/sdk/docs/install)
 - **Terraform**: For infrastructure deployment - [Install](https://developer.hashicorp.com/terraform/downloads)
-- **make**: Build automation tool - [Install](https://www.gnu.org/software/make/) (pre-installed on most Unix-based systems)
-
+- **just**: Build automation tool - [Install](https://github.com/casey/just/)
 
 ## Quick Start (Local Testing)
 
 Install required packages and launch the local development environment:
 
-```bash
-make install && make playground
-```
+`just init-env`
+`just run`
 
 set up gcloud authentication
 `gcloud auth application-default login`
@@ -79,8 +76,8 @@ Deploy the application directly to Cloud Run from your source code using the fol
 ```bash
 gcloud run deploy genai-app-sample \
   --source . \
-  --project YOUR_PROJECT_ID \
-  --region YOUR_GCP_REGION \
+  --project 'ace-world-453411-e9' \
+  --region 'us-central1' \
   --memory "4Gi" \
 ```
 Replace `YOUR_PROJECT_ID` with your Google Cloud project ID and `YOUR_GCP_REGION` with the desired region (e.g., `us-central1`). Adjust memory and other flags as needed for your environment.

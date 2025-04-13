@@ -1,0 +1,114 @@
+# server { #ibis_crew_ai.server }
+
+`server`
+
+API server using fast api.
+
+## Classes
+
+| Name | Description |
+| --- | --- |
+| [GoogleCloudSink](#ibis_crew_ai.server.GoogleCloudSink) | Custom sink to forward loguru logs to Google Cloud Logging. |
+
+### GoogleCloudSink { #ibis_crew_ai.server.GoogleCloudSink }
+
+```python
+server.GoogleCloudSink()
+```
+
+Custom sink to forward loguru logs to Google Cloud Logging.
+
+#### Methods
+
+| Name | Description |
+| --- | --- |
+| [write](#ibis_crew_ai.server.GoogleCloudSink.write) | Write a log message to Google Cloud Logging. |
+
+##### write { #ibis_crew_ai.server.GoogleCloudSink.write }
+
+```python
+server.GoogleCloudSink.write(message)
+```
+
+Write a log message to Google Cloud Logging.
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [collect_feedback](#ibis_crew_ai.server.collect_feedback) | Collect and log feedback. |
+| [initialize_telemetry](#ibis_crew_ai.server.initialize_telemetry) | Initializes Traceloop Telemetry. |
+| [redirect_root_to_docs](#ibis_crew_ai.server.redirect_root_to_docs) | Redirect the root URL to the API documentation. |
+| [set_tracing_properties](#ibis_crew_ai.server.set_tracing_properties) | Sets tracing association properties for the current request. |
+| [stream_chat_events](#ibis_crew_ai.server.stream_chat_events) | Stream chat events in response to an input request. |
+| [stream_messages](#ibis_crew_ai.server.stream_messages) | Stream events in response to an input chat. |
+
+### collect_feedback { #ibis_crew_ai.server.collect_feedback }
+
+```python
+server.collect_feedback(feedback)
+```
+
+Collect and log feedback.
+
+Args:
+    feedback: The feedback data to log
+
+Returns:
+    Success message
+
+### initialize_telemetry { #ibis_crew_ai.server.initialize_telemetry }
+
+```python
+server.initialize_telemetry()
+```
+
+Initializes Traceloop Telemetry.
+
+### redirect_root_to_docs { #ibis_crew_ai.server.redirect_root_to_docs }
+
+```python
+server.redirect_root_to_docs()
+```
+
+Redirect the root URL to the API documentation.
+
+### set_tracing_properties { #ibis_crew_ai.server.set_tracing_properties }
+
+```python
+server.set_tracing_properties(config)
+```
+
+Sets tracing association properties for the current request.
+
+Args:
+    config: Optional RunnableConfig containing request metadata
+
+### stream_chat_events { #ibis_crew_ai.server.stream_chat_events }
+
+```python
+server.stream_chat_events(request)
+```
+
+Stream chat events in response to an input request.
+
+Args:
+    request: The chat request containing input and config
+
+Returns:
+    Streaming response of chat events
+
+### stream_messages { #ibis_crew_ai.server.stream_messages }
+
+```python
+server.stream_messages(input_msg, config=None)
+```
+
+Stream events in response to an input chat.
+
+Args:
+    input_msg: The input chat messages
+    config: Optional configuration for the runnable
+
+Yields:
+    JSON serialized event data

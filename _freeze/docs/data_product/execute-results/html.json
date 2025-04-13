@@ -1,0 +1,12 @@
+{
+  "hash": "bfdce053bb8affe7744b719de9c7ba2a",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: \"ibis-crew-ai\"\nformat: \n    html:\n        number-sections: true\n        html-table-processing: none\njupyter: ibis-crew-ai # uv run python -m ipykernel install --user --name ibis-crew-ai\necho: false\nexecute:\n  freeze: auto  # re-render only when source changes\n---\n\n\n# Executive Summary\n\nThis document summarises the ibis-crew-ai ...\n\nData manipulation using ibis with AI\n\n## Key info\n\n-   Repository name: ibis-crew-ai\n-   Author: Actuarist AI\n-   Repository location: https://github.com/actuaristai/ibis-crew-ai.git\n\n",
+    "supporting": [
+      "data_product_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
